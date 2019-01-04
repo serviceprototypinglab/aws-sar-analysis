@@ -45,6 +45,10 @@ def pullstatistics(stamp):
 			fields.append(app["deploymentCount"])
 			fields.append(",".join(app["labels"]))
 			fields.append(app["description"])
+			if "homePageUrl" in app:
+				fields.append(app["homePageUrl"])
+			else:
+				fields.append("")
 
 			w.writerow(fields)
 
