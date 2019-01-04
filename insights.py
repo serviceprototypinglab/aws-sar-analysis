@@ -6,7 +6,7 @@ import glob
 import sys
 
 def insights_content(filename, verbose=True):
-	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description"])
+	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url"])
 	num_total = len(df)
 
 	dfv = df.groupby(["vendor"])["vendor"].agg(["count"])
@@ -94,6 +94,15 @@ def insights_content(filename, verbose=True):
 		print(dftc.head(10))
 
 		dftc.to_csv("insights_tags_longtail.csv")
+
+		null = df[["url"]][pd.isnull(df["url"])]
+		notnull = df[["url"]][pd.notnull(df["url"])]
+		urllist = list(df["url"])
+		gh = len([url for url in urllist if "github.com" in str(url)])
+		print()
+		print("urls:")
+		print("- set {}, not set {}, percent set {}".format(len(notnull), len(null), 100 * len(notnull) / (len(null) + len(notnull))))
+		print("- github {}, percent github {}".format(gh, 100 * gh / len(df)))
 
 	return num_total, num_vendors, num_downloads, pct_aws, pct_awsdl
 
