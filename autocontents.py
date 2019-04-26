@@ -1,4 +1,4 @@
-# Load all essential statistics from AWS SAM including almost-exact number of Lambdas as well as metadata.
+# Load all essential statistics from AWS SAR including exact number of Lambdas as well as metadata.
 
 import urllib.request
 import json
@@ -6,8 +6,11 @@ import itertools
 import math
 import csv
 import datetime
+import sys
 
-def pullstatistics(stamp):
+caps = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_RESOURCE_POLICY", "CAPABILITY_AUTO_EXPAND"]
+
+def pullstatistics(stamp, custom):
 	neededpages = None
 
 	f = open("autocontents-{}.csv".format(stamp), "w")
@@ -17,6 +20,8 @@ def pullstatistics(stamp):
 		link = "https://shr32taah3.execute-api.us-east-1.amazonaws.com/Prod/applications/browse?pageSize=100"
 		if page > 1:
 			link += "&pageNumber=" + str(page)
+		if custom:
+			link += "&includeAppsWithCapabilities=" + ",".join(caps)
 
 		resource = urllib.request.urlopen(link)
 		content = resource.read().decode("utf-8")
@@ -57,4 +62,9 @@ def pullstatistics(stamp):
 
 	f.close()
 
-pullstatistics(datetime.date.isoformat(datetime.date.today()))
+custom = False
+if len(sys.argv) == 2:
+	if sys.argv[1] == "--custom":
+		custom = True
+
+pullstatistics(datetime.date.isoformat(datetime.date.today()), custom)
