@@ -54,6 +54,7 @@ def pullstatistics(stamp, custom):
 				fields.append(app["homePageUrl"])
 			else:
 				fields.append("")
+			fields.append(",".join(app["requiredCapabilitiesForLatestVersion"]))
 
 			w.writerow(fields)
 
