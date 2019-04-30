@@ -38,7 +38,7 @@ datafiles = glob.glob(filepattern)
 datafiles.sort()
 datafile = datafiles[-1]
 
-date = datafile.split("/")[-1].replace("autocontents-", "").replace(".iam.csv", "")
+date = datafile.split("/")[-1].replace("autocontents-", "").replace(".csv", "")
 
 print("Retrieving GitHub metadata for {} ({})".format(date, datafile))
 
