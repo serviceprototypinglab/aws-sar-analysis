@@ -4,7 +4,7 @@ import sys
 import os
 
 def codechecker(filename, tmpdir, pullcode=True, verbose=True):
-	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url"])
+	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url", "caps"])
 
 	urllist = list(df["url"])
 	hascloned = {}
@@ -82,8 +82,8 @@ if len(sys.argv) == 2:
 	if sys.argv[1] == "--stats":
 		stats = True
 
-#filenames = glob.glob("autostats/autocontents-*.csv")
-filenames = glob.glob("autocontents-*.csv")
+filenames = glob.glob("autostats/autocontents-*.csv")
+#filenames = glob.glob("autocontents-*.csv")
 filenames.sort()
 
 if not stats:
@@ -92,7 +92,7 @@ else:
 	f = open("codechecker.csv", "w")
 	print("#date,total,github-unique,github-dupe,other,none", file=f)
 	for filename in filenames:
-		date = filename.replace("autocontents-", "").replace(".csv", "")
+		date = filename.replace("autostats/", "").replace("autocontents-", "").replace(".csv", "")
 		total, fign, sign, unpulled, dupe, nourls = codechecker(filename, None, False)
 		other = total - unpulled - dupe - nourls
 		print("{},{},{},{},{},{}".format(date, total, unpulled, dupe, other, nourls), file=f)

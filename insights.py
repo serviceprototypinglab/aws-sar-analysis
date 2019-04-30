@@ -6,7 +6,8 @@ import glob
 import sys
 
 def insights_content(filename, verbose=True):
-	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url"])
+	nameslist = ["id", "fqid", "vendor", "deployments", "tags", "description", "url", "caps"]
+	df = pd.read_csv(filename, names=nameslist)
 	num_total = len(df)
 
 	dfv = df.groupby(["vendor"])["vendor"].agg(["count"])
@@ -32,6 +33,7 @@ def insights_content(filename, verbose=True):
 		print("total vendors: {}".format(num_vendors))
 		print("total functions: {}".format(num_total))
 		print(" - avg per vendor : {}".format(num_total / num_vendors))
+		print(" - without capabilities: {}".format(len(df[pd.isnull(df["caps"])])))
 		print("total deployments: {}".format(num_downloads))
 		print(" - avg per function: {}".format(num_downloads / num_total))
 		print(" - avg per vendor : {}".format(num_downloads / num_vendors))
