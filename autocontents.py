@@ -16,6 +16,13 @@ def pullstatistics(stamp, custom):
 	f = open("autocontents-{}.csv".format(stamp), "w")
 	w = csv.writer(f)
 
+	approx = 0
+	totalnocaps = 0
+	if custom:
+		totalwithcaps = 0
+	else:
+		totalwithcaps = -1
+
 	for page in itertools.count(start=1):
 		link = "https://shr32taah3.execute-api.us-east-1.amazonaws.com/Prod/applications/browse?pageSize=100"
 		if page > 1:
@@ -28,14 +35,10 @@ def pullstatistics(stamp, custom):
 		struct = json.loads(content)
 
 		if page == 1:
-			neededpages = math.ceil(struct["approximateResultCount"] / 100)
-			print("Approximately {} results.".format(struct["approximateResultCount"]))
+			approx = struct["approximateResultCount"]
+			neededpages = math.ceil(approx / 100)
+			print("Approximately {} results.".format(approx))
 			print("Applications:")
-
-			stf = open("autostats.csv", "a")
-			stw = csv.writer(stf)
-			stw.writerow([stamp, struct["approximateResultCount"]])
-			stf.close()
 
 		for app in struct["applications"]:
 			print("- {} / {}".format(app["name"], app["id"]))
@@ -56,12 +59,22 @@ def pullstatistics(stamp, custom):
 				fields.append("")
 			fields.append(",".join(app["requiredCapabilitiesForLatestVersion"]))
 
+			if app["requiredCapabilitiesForLatestVersion"]:
+				totalwithcaps += 1
+			else:
+				totalnocaps += 1
+
 			w.writerow(fields)
 
 		if page == neededpages:
 			break
 
 	f.close()
+
+	stf = open("autostats.csv", "a")
+	stw = csv.writer(stf)
+	stw.writerow([stamp, approx, totalnocaps, totalwithcaps])
+	stf.close()
 
 custom = False
 if len(sys.argv) == 2:
