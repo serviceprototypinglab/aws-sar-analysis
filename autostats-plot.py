@@ -16,9 +16,9 @@ def plot_autostats(cmap):
 
 	#figsize=(8.0, 5.5+1)
 
-	ax = df.plot(cmap=cmap, ylim=[0, max(df["counter"]) + 50], fontsize=FONT)
+	ax = df.plot(cmap=cmap, ylim=[0, max(df["total"]) + 50], fontsize=FONT)
 	ax.set_xlabel("date", fontsize=FONT)
-	ax.set_ylabel("# of cloud functions (approx. before 7/10)", fontsize=FONT)
+	ax.set_ylabel("# of registered cloud functions", fontsize=FONT)
 	ax.set_title("Evolution of AWS Serverless Application Repository", fontsize=FONT)
 	ax.legend(fontsize=FONT)
 
