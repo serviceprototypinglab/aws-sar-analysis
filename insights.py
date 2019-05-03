@@ -21,7 +21,7 @@ def insights_content(filename, verbose=True):
 
 	num_aws = 0
 	dl_aws = 0
-	for awsvendor in ("AWS", "AWS Secrets Manager", "AWS Greengrass", "AWS Elastic Load Balancing", "Alexa Skills Kit"):
+	for awsvendor in ("AWS", "AWS Secrets Manager", "AWS Greengrass", "AWS Elastic Load Balancing", "AWS SageMaker Ground Truth", "AWS Sample", "AWS Serverless Application Repository", "AWS WorkMail", "Alexa Skills Kit", "Alexa for Business"):
 		countvar = dfv[(dfv.index == awsvendor)]["count"]
 		if len(countvar) > 0:
 			num_aws += countvar[0]
