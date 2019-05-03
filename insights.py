@@ -29,14 +29,21 @@ def insights_content(filename, verbose=True):
 	pct_aws = round(num_aws / num_total, 2)
 	pct_awsdl = round(dl_aws / num_downloads, 2)
 
+	df_nocaps = df[pd.isnull(df["caps"])]
+	num_total_nocaps = len(df_nocaps)
+	num_vendors_nocaps = len(df_nocaps.groupby(["vendor"])["vendor"].agg(["count"]))
+	num_downloads_nocaps = df_nocaps["deployments"].sum()
+
 	if verbose:
 		print("total vendors: {}".format(num_vendors))
 		print("total functions: {}".format(num_total))
-		print(" - avg per vendor : {}".format(num_total / num_vendors))
-		print(" - without capabilities: {}".format(len(df[pd.isnull(df["caps"])])))
+		print(" - avg per vendor: {}".format(num_total / num_vendors))
+		print(" - without capabilities: {}".format(num_total_nocaps))
 		print("total deployments: {}".format(num_downloads))
 		print(" - avg per function: {}".format(num_downloads / num_total))
-		print(" - avg per vendor : {}".format(num_downloads / num_vendors))
+		print(" - avg per vendor: {}".format(num_downloads / num_vendors))
+		print(" - avg per function w/o caps: {}".format(num_downloads_nocaps / num_total_nocaps))
+		print(" - avg per vendor w/o caps: {}".format(num_downloads_nocaps / num_vendors_nocaps))
 		print()
 		print("top vendors:")
 		#dft = dfv[(dfv["count"] > 2)]
