@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import subprocess
+import time
 
 def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url", "caps"])
@@ -11,6 +12,8 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 	urllist = list(df["url"])
 	hascloned = {}
 	hasclonednow = {}
+	folders = {}
+	needscopy = {}
 	success = 0
 	failure = 0
 	unpulled = 0
@@ -19,11 +22,22 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 	nourls = 0
 	statsnew = 0
 	statsupdated = 0
+	prevtime = 0
 
 	if pullcode:
 		if os.path.isfile("codecheckerrepos.json"):
 			f = open("codecheckerrepos.json")
 			hascloned = json.load(f)
+		if os.path.isfile("codecheckerfolders.json"):
+			f = open("codecheckerfolders.json")
+			folders = json.load(f)
+		if os.path.isfile("_codestamp"):
+			f = open("_codestamp")
+			prevtime = int(f.read().strip())
+			print("last run {}s ago".format(int(time.time()) - prevtime))
+		f = open("_codestamp", "w")
+		print(str(int(time.time())), file=f)
+		f.close()
 
 	for i, url in enumerate(urllist):
 		ipos = len(hascloned) + 1
@@ -38,21 +52,25 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 					ipos = hascloned[urlstem]
 				if os.path.isdir("{}/_codechecker/{}".format(tmpdir, ipos)):
 					print("clone-update {}...".format(urlstem))
-					origdir = os.getcwd()
-					os.chdir("{}/_codechecker/{}".format(tmpdir, ipos))
-					os.system("git fetch")
-					p = subprocess.run("git diff origin/HEAD", shell=True, stdout=subprocess.PIPE)
-					if p.stdout:
-						statsupdated += 1
-						os.system("git merge origin/HEAD")
-					os.chdir(origdir)
+					if time.time() - prevtime > 7200:
+						origdir = os.getcwd()
+						os.chdir("{}/_codechecker/{}".format(tmpdir, ipos))
+						os.system("git -c core.askpass=true fetch")
+						p = subprocess.run("git diff origin/HEAD", shell=True, stdout=subprocess.PIPE)
+						if p.stdout:
+							statsupdated += 1
+							os.system("git merge origin/HEAD")
+							needscopy[urlstem] = True
+						os.chdir(origdir)
+					else:
+						print("(skip actual update check due to short succession)")
 					hascloned[urlstem] = ipos
 					hasclonednow[urlstem] = ipos
 					success += 1
 				else:
 					print("clone {}...".format(urlstem))
 					os.makedirs("{}/_codechecker".format(tmpdir), exist_ok=True)
-					ret = os.system("git clone {} {}/_codechecker/{}".format(urlstem, tmpdir, ipos))
+					ret = os.system("git -c core.askpass=true clone {} {}/_codechecker/{}".format(urlstem, tmpdir, ipos))
 					if ret:
 						print("!!! ERROR")
 						failure += 1
@@ -61,12 +79,16 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 						success += 1
 						hascloned[urlstem] = ipos
 						hasclonednow[urlstem] = ipos
+						needscopy[urlstem] = True
 						statsnew += 1
 			else:
 				unpulled += 1
 				hascloned[urlstem] = ipos
 
-			if pullcode:
+			if not url in folders:
+				folders[url] = str(ipos) + "-" + str(len(folders) + 1)
+			if pullcode and urlstem in needscopy:
+				fpos = folders[url]
 				os.makedirs("{}/_codefolders".format(tmpdir), exist_ok=True)
 				origdir = None
 				if urlpath.startswith("tree"):
@@ -76,8 +98,8 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 					os.chdir("{}/_codechecker/{}".format(tmpdir, hascloned[urlstem]))
 					os.system("git checkout {}".format(treename))
 					os.chdir(origdir)
-				os.system("rm -rf {}/_codefolders/{}".format(tmpdir, ipos))
-				os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, ipos))
+				os.system("rm -rf {}/_codefolders/{}".format(tmpdir, fpos))
+				os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, fpos))
 			#if origdir:
 			#	os.chdir("_codechecker/{}".format(hascloned[urlstem]))
 			#	os.system("git checkout master") # origin/HEAD?
@@ -94,6 +116,9 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 	if pullcode:
 		f = open("codecheckerrepos.json", "w")
 		json.dump(hascloned, f, sort_keys=True)
+		f.close()
+		f = open("codecheckerfolders.json", "w")
+		json.dump(folders, f, sort_keys=True)
 		f.close()
 
 	print("failures {} + success {} = unique github repos {} + dupes {} = github {} + other {} + none {} = total {}".format(failure, success, failure + success + unpulled, dupe, failure + success + unpulled + dupe, len(urllist) - failure - success - unpulled - dupe - nourls, nourls, len(urllist)))
