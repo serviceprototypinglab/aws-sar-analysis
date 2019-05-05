@@ -45,12 +45,10 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 					if p.stdout:
 						statsupdated += 1
 						os.system("git merge origin/HEAD")
-					#os.system("git pull")
 					os.chdir(origdir)
 					hascloned[urlstem] = ipos
 					hasclonednow[urlstem] = ipos
 					success += 1
-					# statsupdated += 1
 				else:
 					print("clone {}...".format(urlstem))
 					os.makedirs("{}/_codechecker".format(tmpdir), exist_ok=True)
@@ -82,7 +80,7 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 				os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, ipos))
 			#if origdir:
 			#	os.chdir("_codechecker/{}".format(hascloned[urlstem]))
-			#	os.system("git checkout master")
+			#	os.system("git checkout master") # origin/HEAD?
 			#	os.chdir(origdir)
 		else:
 			if pd.isnull(url):
@@ -108,7 +106,7 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 		f = open("codecheckerstats.csv", "w")
 		print("#date,new,updated", file=f)
 	date = filename.replace("autostats/", "").replace("autocontents-", "").replace(".csv", "")
-	print("{},{},{}".format(date, statsnew,statsupdated), file=f)
+	print("{},{},{}".format(date, statsnew, statsupdated), file=f)
 	f.close()
 
 	return len(urllist), failure, success, unpulled, dupe, nourls
@@ -125,7 +123,6 @@ if not os.path.isdir("autostats"):
 	sys.exit(-1)
 
 filenames = glob.glob("autostats/autocontents-*.csv")
-#filenames = glob.glob("autocontents-*.csv")
 filenames.sort()
 
 if not stats:
