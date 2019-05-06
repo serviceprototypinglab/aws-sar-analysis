@@ -92,6 +92,7 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 			else:
 				unpulled += 1
 				hascloned[urlstem] = ipos
+				hasclonednow[urlstem] = ipos
 
 			if not url in folders:
 				folders[url] = str(ipos) + "-" + str(len(folders) + 1)
@@ -141,16 +142,18 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 
 	print("failures {} + success {} = unique github repos {} + dupes {} = github {} + other {} + none {} = total {}".format(failure, success, failure + success + unpulled, dupe, failure + success + unpulled + dupe, len(urllist) - failure - success - unpulled - dupe - nourls, nourls, len(urllist)))
 	print("others", otherurls)
-	print("stats: new {}, updated {}".format(statsnew, statsupdated))
 
-	if os.path.isfile("codecheckerstats.csv"):
-		f = open("codecheckerstats.csv", "a")
-	else:
-		f = open("codecheckerstats.csv", "w")
-		print("#date,new,updated", file=f)
-	date = filename.replace("autostats/", "").replace("autocontents-", "").replace(".csv", "")
-	print("{},{},{}".format(date, statsnew, statsupdated), file=f)
-	f.close()
+	if pullcode:
+		print("stats: new {}, updated {}".format(statsnew, statsupdated))
+
+		if os.path.isfile("codecheckerstats.csv"):
+			f = open("codecheckerstats.csv", "a")
+		else:
+			f = open("codecheckerstats.csv", "w")
+			print("#date,new,updated", file=f)
+		date = filename.replace("autostats/", "").replace("autocontents-", "").replace(".csv", "")
+		print("{},{},{}".format(date, statsnew, statsupdated), file=f)
+		f.close()
 
 	return len(urllist), failure, success, unpulled, dupe, nourls
 
