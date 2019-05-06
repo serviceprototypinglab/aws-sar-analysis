@@ -10,10 +10,13 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 	df = pd.read_csv(filename, names=["id", "fqid", "vendor", "deployments", "tags", "description", "url", "caps"])
 
 	urllist = list(df["url"])
+	namelist = list(df["id"])
 	hascloned = {}
 	hasclonednow = {}
 	folders = {}
+	namedfolders = {}
 	needscopy = {}
+	needscopyurl = {}
 	success = 0
 	failure = 0
 	unpulled = 0
@@ -31,6 +34,9 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 		if os.path.isfile("codecheckerfolders.json"):
 			f = open("codecheckerfolders.json")
 			folders = json.load(f)
+		if os.path.isfile("codecheckernamedfolders.json"):
+			f = open("codecheckernamedfolders.json")
+			namedfolders = json.load(f)
 		if os.path.isfile("_codestamp"):
 			f = open("_codestamp")
 			prevtime = int(f.read().strip())
@@ -39,23 +45,25 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 		print(str(int(time.time())), file=f)
 		f.close()
 
-	for i, url in enumerate(urllist):
+	for i, urlname in enumerate(zip(urllist, namelist)):
+		url, name = urlname
 		ipos = len(hascloned) + 1
 		if "github.com" in str(url):
 			urlstem = "/".join(url.split("/")[:5])
 			urlpath = "/".join(url.split("/")[5:])
 			if urlstem in hasclonednow:
-				print("reuse {} ({})".format(urlstem, hasclonednow[urlstem]))
+				ipos = hasclonednow[urlstem]
+				print("REPO reuse {} ({})".format(urlstem, ipos))
 				dupe += 1
 			elif pullcode:
 				if urlstem in hascloned:
 					ipos = hascloned[urlstem]
 				if os.path.isdir("{}/_codechecker/{}".format(tmpdir, ipos)):
-					print("clone-update {}...".format(urlstem))
-					if time.time() - prevtime > 7200:
+					print("REPO clone-update {}... ({})".format(urlstem, ipos))
+					if time.time() - prevtime > 3600:
 						origdir = os.getcwd()
 						os.chdir("{}/_codechecker/{}".format(tmpdir, ipos))
-						os.system("git -c core.askpass=true fetch")
+						os.system("git -c core.askpass=true fetch -q")
 						p = subprocess.run("git diff origin/HEAD", shell=True, stdout=subprocess.PIPE)
 						if p.stdout:
 							statsupdated += 1
@@ -63,16 +71,16 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 							needscopy[urlstem] = True
 						os.chdir(origdir)
 					else:
-						print("(skip actual update check due to short succession)")
+						print("     (skip actual update check due to short succession)")
 					hascloned[urlstem] = ipos
 					hasclonednow[urlstem] = ipos
 					success += 1
 				else:
-					print("clone {}...".format(urlstem))
+					print("REPO clone {}... ({})".format(urlstem, ipos))
 					os.makedirs("{}/_codechecker".format(tmpdir), exist_ok=True)
-					ret = os.system("git -c core.askpass=true clone {} {}/_codechecker/{}".format(urlstem, tmpdir, ipos))
+					ret = os.system("git -c core.askpass=true clone -q {} {}/_codechecker/{}".format(urlstem, tmpdir, ipos))
 					if ret:
-						print("!!! ERROR")
+						print("!!!! ERROR cloning")
 						failure += 1
 						continue
 					else:
@@ -87,19 +95,26 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 
 			if not url in folders:
 				folders[url] = str(ipos) + "-" + str(len(folders) + 1)
-			if pullcode and urlstem in needscopy:
+			if not name in namedfolders:
+				namedfolders[name] = folders[url]
+			if pullcode:
 				fpos = folders[url]
-				os.makedirs("{}/_codefolders".format(tmpdir), exist_ok=True)
-				origdir = None
-				if urlpath.startswith("tree"):
-					tree, treename, *rest = urlpath.split("/")
-					urlpath = "/".join(rest)
-					origdir = os.getcwd()
-					os.chdir("{}/_codechecker/{}".format(tmpdir, hascloned[urlstem]))
-					os.system("git checkout {}".format(treename))
-					os.chdir(origdir)
-				os.system("rm -rf {}/_codefolders/{}".format(tmpdir, fpos))
-				os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, fpos))
+				if urlstem in needscopy and needscopy[urlstem] and not url in needscopyurl:
+					needscopyurl[url] = False
+					print(" DIR produce folder {}".format(fpos))
+					os.makedirs("{}/_codefolders".format(tmpdir), exist_ok=True)
+					origdir = None
+					if urlpath.startswith("tree"):
+						tree, treename, *rest = urlpath.split("/")
+						urlpath = "/".join(rest)
+						origdir = os.getcwd()
+						os.chdir("{}/_codechecker/{}".format(tmpdir, hascloned[urlstem]))
+						os.system("git checkout -q {}".format(treename))
+						os.chdir(origdir)
+					os.system("rm -rf {}/_codefolders/{}".format(tmpdir, fpos))
+					os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, fpos))
+				else:
+					print(" DIR reuse existing folder {}".format(fpos))
 			#if origdir:
 			#	os.chdir("_codechecker/{}".format(hascloned[urlstem]))
 			#	os.system("git checkout master") # origin/HEAD?
@@ -119,6 +134,9 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 		f.close()
 		f = open("codecheckerfolders.json", "w")
 		json.dump(folders, f, sort_keys=True)
+		f.close()
+		f = open("codecheckernamedfolders.json", "w")
+		json.dump(namedfolders, f, sort_keys=True)
 		f.close()
 
 	print("failures {} + success {} = unique github repos {} + dupes {} = github {} + other {} + none {} = total {}".format(failure, success, failure + success + unpulled, dupe, failure + success + unpulled + dupe, len(urllist) - failure - success - unpulled - dupe - nourls, nourls, len(urllist)))
