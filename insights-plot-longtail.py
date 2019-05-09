@@ -8,8 +8,8 @@ import os
 
 FONT = 16
 
-def plot_insights_longtails(cmap):
-	df = pd.read_csv("insights_tags_longtail.csv")
+def plot_insights_longtails(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["tags"])
 
 	if cmap != "gray":
@@ -29,7 +29,7 @@ def plot_insights_longtails(cmap):
 	pylab.tight_layout()
 
 	os.makedirs("plots", exist_ok=True)
-	pylab.savefig("plots/insights-longtail-tags.{}.png".format(cmap))
+	pylab.savefig("plots/insights-longtail-tags.{}.{}".format(cmap, fileformat))
 
 if __name__ == "__main__":
 	if len(sys.argv) not in (1, 2):
@@ -41,4 +41,4 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		cmap = sys.argv[1]
 
-	plot_insights_longtails(cmap)
+	plot_insights_longtails(cmap, "insights_tags_longtail.csv", "png")

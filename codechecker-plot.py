@@ -8,8 +8,8 @@ import os
 
 FONT = 16
 
-def plot_codechecker(cmap):
-	df = pd.read_csv("codechecker.csv")
+def plot_codechecker(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["#date"])
 
 	ax = df.plot(cmap=cmap, fontsize=FONT)
@@ -25,7 +25,7 @@ def plot_codechecker(cmap):
 	pylab.tight_layout()
 
 	os.makedirs("plots", exist_ok=True)
-	pylab.savefig("plots/codechecker.{}.png".format(cmap))
+	pylab.savefig("plots/codechecker.{}.{}".format(cmap, fileformat))
 
 if __name__ == "__main__":
 	if len(sys.argv) not in (1, 2):
@@ -37,4 +37,4 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		cmap = sys.argv[1]
 
-	plot_codechecker(cmap)
+	plot_codechecker(cmap, "codechecker.csv", "png")

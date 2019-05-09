@@ -8,8 +8,8 @@ import os
 
 FONT = 16
 
-def plot_insights_totals(cmap):
-	df = pd.read_csv("insights-totals.csv")
+def plot_insights_totals(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["#stamp"])
 
 	ax = df[["functions", "vendors"]].plot(cmap=cmap, ylim=[0, max(df["functions"]) * 1.1], fontsize=FONT)
@@ -30,10 +30,10 @@ def plot_insights_totals(cmap):
 	pylab.tight_layout()
 
 	os.makedirs("plots", exist_ok=True)
-	pylab.savefig("plots/insights-totals-plot.{}.png".format(cmap))
+	pylab.savefig("plots/insights-totals-plot.{}.{}".format(cmap, fileformat))
 
-def plot_insights_percent(cmap):
-	df = pd.read_csv("insights-percent.csv")
+def plot_insights_percent(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["#stamp"])
 
 	ax = df.plot(cmap=cmap, ylim=[0, 1], fontsize=FONT)
@@ -46,7 +46,7 @@ def plot_insights_percent(cmap):
 	pylab.tight_layout()
 
 	os.makedirs("plots", exist_ok=True)
-	pylab.savefig("plots/insights-percent-plot.{}.png".format(cmap))
+	pylab.savefig("plots/insights-percent-plot.{}.{}".format(cmap, fileformat))
 
 if __name__ == "__main__":
 	if len(sys.argv) not in (1, 2):
@@ -58,5 +58,5 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		cmap = sys.argv[1]
 
-	plot_insights_totals(cmap)
-	plot_insights_percent(cmap)
+	plot_insights_totals(cmap, "insights-totals.csv", "png")
+	plot_insights_percent(cmap, "insights-percent.csv", "png")

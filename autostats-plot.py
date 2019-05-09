@@ -8,8 +8,8 @@ import os
 
 FONT = 16
 
-def plot_autostats(cmap):
-	df = pd.read_csv("autostats/autostats.csv")
+def plot_autostats(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["#stamp"])
 
 	#df["counter"] *= 10
@@ -30,7 +30,7 @@ def plot_autostats(cmap):
 
 	#pylab.show()
 	os.makedirs("plots", exist_ok=True)
-	pylab.savefig("plots/autostats-plot.{}.png".format(cmap))
+	pylab.savefig("plots/autostats-plot.{}.{}".format(cmap, fileformat))
 
 if __name__ == "__main__":
 	if len(sys.argv) not in (1, 2):
@@ -42,4 +42,4 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		cmap = sys.argv[1]
 
-	plot_autostats(cmap)
+	plot_autostats(cmap, "autostats/autostats.csv", "png")

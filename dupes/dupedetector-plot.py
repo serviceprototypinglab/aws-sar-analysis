@@ -8,8 +8,8 @@ import os
 
 FONT = 16
 
-def plot_dupes(cmap):
-	df = pd.read_csv("dupedetector.csv")
+def plot_dupes(cmap, filename, fileformat):
+	df = pd.read_csv(filename)
 	df = df.set_index(["#date"])
 
 	ax = df["dupespct"].plot(cmap=cmap, fontsize=FONT)
@@ -24,7 +24,7 @@ def plot_dupes(cmap):
 	pylab.setp(ax.xaxis.get_majorticklabels(), rotation=70)
 	pylab.tight_layout()
 
-	pylab.savefig("dupedetector.{}.png".format(cmap))
+	pylab.savefig("dupedetector.{}.{}".format(cmap, fileformat))
 
 if __name__ == "__main__":
 	if len(sys.argv) not in (1, 2):
@@ -36,4 +36,4 @@ if __name__ == "__main__":
 	if len(sys.argv) == 2:
 		cmap = sys.argv[1]
 
-	plot_dupes(cmap)
+	plot_dupes(cmap, "dupedetector.csv", "png")
