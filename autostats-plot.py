@@ -16,11 +16,24 @@ def plot_autostats(cmap, filename, fileformat):
 
 	#figsize=(8.0, 5.5+1)
 
-	ax = df.plot(cmap=cmap, ylim=[0, max(df["total"]) + 50], fontsize=FONT)
+	cmapuse = cmap
+	colorlist = None
+	style = None
+	if cmap == "gray":
+		cmapuse = None
+		colorlist = ["#929292", "#c7c7c7", "#5d5d5d"]
+		stlye = ["-", "--", ".-"]
+		#pylab.style.use("grayscale")
+		#pylab.rcParams["axes.prop_cycle"] = pylab.rcParams["axes.prop_cycle"][20:]
+
+	ax = df.plot(cmap=cmapuse, ylim=[0, max(df["total"]) + 50], fontsize=FONT, color=colorlist, style=style)
 	ax.set_xlabel("date", fontsize=FONT)
 	ax.set_ylabel("# of registered cloud functions", fontsize=FONT)
 	ax.set_title("Evolution of AWS Serverless Application Repository", fontsize=FONT)
 	ax.legend(fontsize=FONT)
+
+	ax.plot((344, 344), (0, 580), dashes=[2, 2, 10, 2], c="gray")
+	ax.text(330, 280, "inclusion of caps", rotation="vertical", fontsize=FONT)
 
 	#ax.set_ylim(top=df["counter"].max() + 100)
 

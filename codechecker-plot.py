@@ -12,11 +12,22 @@ def plot_codechecker(cmap, filename, fileformat):
 	df = pd.read_csv(filename)
 	df = df.set_index(["#date"])
 
-	ax = df.plot(cmap=cmap, fontsize=FONT)
+	cmapuse = cmap
+	colorlist = None
+	style = None
+	if cmap == "gray":
+		cmapuse = None
+		colorlist = ["#000000", "#929292", "#929292", "#c7c7c7", "#c7c7c7"]
+		style = ["-", "--", "-", "--", "-"]
+
+	ax = df.plot(cmap=cmapuse, fontsize=FONT, color=colorlist, style=style)
 	ax.set_xlabel("date", fontsize=FONT)
 	ax.set_ylabel("# of cloud functions + code repositories", fontsize=FONT)
 	ax.set_title("Evolution of AWS SAR Code Repositories", fontsize=FONT)
-	ax.legend(fontsize=FONT)
+	leg = ax.legend(fontsize=FONT, loc="upper left")
+
+	ax.plot((288, 288), (0, 550), dashes=[2, 2, 10, 2], c="gray")
+	ax.text(274, 340, "inclusion of caps", rotation="vertical", fontsize=FONT)
 
 	if cmap != "gray":
 		pylab.rcParams["axes.prop_cycle"] = pylab.rcParams["axes.prop_cycle"][2:]

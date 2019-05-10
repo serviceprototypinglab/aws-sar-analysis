@@ -36,11 +36,22 @@ def plot_insights_percent(cmap, filename, fileformat):
 	df = pd.read_csv(filename)
 	df = df.set_index(["#stamp"])
 
-	ax = df.plot(cmap=cmap, ylim=[0, 1], fontsize=FONT)
+	cmapuse = cmap
+	colorlist = None
+	style = None
+	if cmap == "gray":
+		cmapuse = None
+		colorlist = ["#929292", "#c7c7c7"]
+		style = ["-", "--"]
+
+	ax = df.plot(cmap=cmapuse, ylim=[0, 1], fontsize=FONT, color=colorlist, style=style)
 	ax.set_xlabel("date", fontsize=FONT)
 	ax.set_ylabel("% of cloud functions, deployments by AWS", fontsize=FONT)
 	ax.set_title("Evolution of AWS Serverless Application Repository", fontsize=FONT)
 	ax.legend(fontsize=FONT)
+
+	ax.plot((288, 288), (0, 1), dashes=[2, 2, 10, 2], c="gray")
+	ax.text(274, 0.78, "inclusion of caps", rotation="vertical", fontsize=FONT)
 
 	pylab.setp(ax.xaxis.get_majorticklabels(), rotation=70)
 	pylab.tight_layout()
