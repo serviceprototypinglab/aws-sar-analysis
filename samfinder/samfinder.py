@@ -2,6 +2,7 @@ import os
 import yaml
 import sys
 import shutil
+import datetime
 
 foldersdir = "_codefolders"
 samsdir = "_sams"
@@ -151,6 +152,17 @@ for folder in folders:
 gsamokavg = round(gsamok / len(folders), 2)
 gotheravg = round(gother / len(folders), 2)
 gbrokenavg = round(gbroken / len(folders), 2)
+
+createcsv = False
+if not os.path.isfile("samfinder.csv"):
+	createcsv = True
+
+date = datetime.date.today()
+f = open("samfinder.csv", "a")
+if createcsv:
+	print("#date,repos,reposwithsams,sams,samsperrepo,yamlperrepo,brokenperrepo,samnocode,samremotecode,samzipcode,samfoldercode,reponocode,reporemotecode,repozipcode,repofoldercode", file=f)
+print("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(date, len(folders), ghassam,gsamok, gsamokavg, gotheravg, gbrokenavg, code_none, code_remote, code_zip, code_local, gcode_none, gcode_remote, gcode_zip, gcode_local_mixed), file=f)
+f.close()
 
 print("AVG: {} ok SAMs, {} other, {} unclear/broken".format(gsamokavg, gotheravg, gbrokenavg))
 print("{} out of {} function repositories contain a SAM file ({}%).".format(ghassam, len(folders), round(100 * ghassam / len(folders), 2)))

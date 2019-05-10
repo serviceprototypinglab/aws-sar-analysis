@@ -172,7 +172,20 @@ filenames = glob.glob("autostats/autocontents-*.csv")
 filenames.sort()
 
 if not stats:
-	codechecker(filenames[-1], tmpdir)
+	filename = filenames[-1]
+	total, failure, success, unpulled, dupe, nourls = codechecker(filename, tmpdir)
+
+	add = False
+	if not os.path.isfile("codecheckerpull.csv"):
+		add = True
+
+	f = open("codecheckerpull.csv", "a")
+	if add:
+		print("#date,total,failure,success,github-unique,github-dupe,other,none", file=f)
+	date = filename.replace("autostats/", "").replace("autocontents-", "").replace(".csv", "")
+	other = total - failure - success - unpulled - dupe - nourls
+	print("{},{},{},{},{},{},{},{}".format(date, total, failure, success, failure + success + unpulled, failure + success + unpulled + dupe, other, nourls), file=f)
+	f.close()
 else:
 	f = open("codechecker.csv", "w")
 	print("#date,total,github-unique,github-dupe,other,none", file=f)
