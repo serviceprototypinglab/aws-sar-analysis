@@ -65,7 +65,7 @@ for folder in folders:
 					#print("SAM found")
 					samok += 1
 					targetyamlfile = os.path.join(targetfolder, str(samok) + ".yaml")
-					sams.append(os.path.join("code", "/".join(yamlfile.split("/")[1:])))
+					sams.append(os.path.join("/".join(yamlfile.split("/")[1:]), "code"))
 					if copysams:
 						os.makedirs(targetfolder, exist_ok=True)
 						shutil.copy(yamlfile, targetyamlfile)
@@ -121,7 +121,7 @@ for folder in folders:
 
 	if needscopycode and copysamscode:
 		targetcodefolder = os.path.join(targetfolder, "code")
-		shutil.rmtree(os.path.join(targetcodefolder), ignore_errors=True)
+		shutil.rmtree(targetcodefolder, ignore_errors=True)
 		shutil.copytree(folderpath, targetcodefolder)
 		shutil.rmtree(os.path.join(targetcodefolder, ".git"), ignore_errors=True)
 
