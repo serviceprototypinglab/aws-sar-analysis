@@ -29,7 +29,7 @@ def githubstats(url):
 		return s["stargazers_count"], s["subscribers_count"], s["forks_count"], s["language"]
 
 if len(sys.argv) != 2:
-	print("Syntax: {} <filepattern.csv> # e.g. autocontents-yyyy-mm-dd.csv or 'autocontents-*.csv'", file=sys.stderr)
+	print("Syntax: {} <filepattern.csv> # e.g. autocontents-yyyy-mm-dd.csv or 'autocontents-*.csv'".format(sys.argv[0]), file=sys.stderr)
 	sys.exit(1)
 
 filepattern = sys.argv[1]
