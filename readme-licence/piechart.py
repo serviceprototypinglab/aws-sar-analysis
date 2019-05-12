@@ -5,20 +5,20 @@ import collections
 pcts = {
 	"Academic": 4,
 	"Amazon ASL": 2,
-	"Apache*": 117,
-	"BSD 2-Clause*": 8,
+	"Apache*": 115,
+	"BSD 2-Clause*": 11,
 	"© Amazon": 26,
 	"custom A": 2,
 	"custom B": 2,
 	"© Apple": 3,
 	"GNU GPL*": 10,
 	"ISC": 2,
-	"MIT*": 214,
+	"MIT*": 215,
 	"MIT NoPerm": 4,
 	"MIT-variant": 9,
 	"custom C": 2,
-	"other (long)": 40,
-	"other (short)": 81
+	"other (long)": 42,
+	"other (short)": 82
 }
 pcts = collections.OrderedDict(sorted(pcts.items()))
 
