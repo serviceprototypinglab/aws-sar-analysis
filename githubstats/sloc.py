@@ -1,6 +1,7 @@
 import glob
 import subprocess
 import json
+import os
 
 folders = glob.glob("_codefolders/*")
 
@@ -9,7 +10,11 @@ langs = {}
 for folder in folders:
 	print(folder)
 	foldername = folder.split("/")[-1]
-	p = subprocess.run("sloccount {}".format(folder), shell=True, stdout=subprocess.PIPE)
+	datadir = os.path.expanduser("~/.slocdata/{}".format(foldername))
+	#os.makedirs(datadir, exist_ok=True)
+	#cmd = "sloccount --cached --datadir {} {}".format(datadir, folder)
+	cmd = "sloccount {}".format(folder)
+	p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
 	s = p.stdout.decode()
 	instats = False
 	for line in s.split("\n"):

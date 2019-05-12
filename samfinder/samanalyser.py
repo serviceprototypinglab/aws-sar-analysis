@@ -16,10 +16,12 @@ samfolders = glob.glob("extracted-sams/*")
 for samfolder in samfolders:
 	localtypes = {}
 	sams = os.listdir(samfolder)
-	allsams += len(sams)
 	for sam in sams:
+		if not os.path.isfile(os.path.join(samfolder, sam)):
+			continue
 		y = yaml.load(open(os.path.join(samfolder, sam)))
 		if "Resources" in y:
+			allsams += 1
 			for r in y["Resources"]:
 				if "Type" in y["Resources"][r]:
 					t = y["Resources"][r]["Type"]

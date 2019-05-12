@@ -52,8 +52,8 @@ for folder in folders:
 	sams = []
 	for root, dirs, files in os.walk(folderpath):
 		#print(root, dirs, files)
-		for yamlfile in [f for f in files if f.endswith(".yml") or f.endswith(".yaml")]:
-			yamlfile = os.path.join(root, yamlfile)
+		for yamlfileorig in [f for f in files if f.endswith(".yml") or f.endswith(".yaml")]:
+			yamlfile = os.path.join(root, yamlfileorig)
 			#print("YAML", yamlfile)
 			try:
 				y = yaml.load(open(yamlfile))
@@ -65,7 +65,7 @@ for folder in folders:
 					#print("SAM found")
 					samok += 1
 					targetyamlfile = os.path.join(targetfolder, str(samok) + ".yaml")
-					sams.append(os.path.join("/".join(yamlfile.split("/")[1:]), "code"))
+					sams.append(os.path.join("/".join(root.split("/")[1:]), "code", yamlfileorig))
 					if copysams:
 						os.makedirs(targetfolder, exist_ok=True)
 						shutil.copy(yamlfile, targetyamlfile)

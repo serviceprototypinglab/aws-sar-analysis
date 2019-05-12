@@ -100,6 +100,10 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 				namedfolders[name] = folders[url]
 			if pullcode:
 				fpos = folders[url]
+				if not os.path.isdir("{}/_codefolders/{}".format(tmpdir, fpos)):
+					needscopy[urlstem] = True
+					if url in needscopyurl:
+						del needscopyurl[url]
 				if urlstem in needscopy and needscopy[urlstem] and not url in needscopyurl:
 					needscopyurl[url] = False
 					print(" DIR produce folder {}".format(fpos))
@@ -114,6 +118,7 @@ def codechecker(filename, tmpdir, pullcode=True, verbose=True):
 						os.chdir(origdir)
 					os.system("rm -rf {}/_codefolders/{}".format(tmpdir, fpos))
 					os.system("cp -r {}/_codechecker/{}/{} {}/_codefolders/{}".format(tmpdir, hascloned[urlstem], urlpath, tmpdir, fpos))
+					os.system("rm -rf {}/_codefolders/{}/.git".format(tmpdir, fpos))
 				else:
 					print(" DIR reuse existing folder {}".format(fpos))
 			#if origdir:
