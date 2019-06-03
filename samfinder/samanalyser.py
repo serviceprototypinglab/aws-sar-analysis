@@ -3,6 +3,7 @@ import os
 import operator
 import yaml
 import collections
+import sys
 
 yaml.add_multi_constructor('!', lambda loader, suffix, node: None)
 
@@ -11,8 +12,12 @@ runtimes = {}
 foldertypes = {}
 allsams = 0
 
+samrootfolder = "extracted-sams"
+if len(sys.argv) == 2:
+	samrootfolder = sys.argv[1]
+
 print("Scanning SAMs...")
-samfolders = glob.glob("extracted-sams/*")
+samfolders = glob.glob(os.path.join(samrootfolder, "*"))
 for samfolder in samfolders:
 	localtypes = {}
 	sams = os.listdir(samfolder)
