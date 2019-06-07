@@ -8,6 +8,7 @@ import sys
 yaml.add_multi_constructor('!', lambda loader, suffix, node: None)
 
 clusters = {}
+folders = {}
 samcount = 0
 
 samrootfolder = "extracted-sams"
@@ -32,6 +33,9 @@ for samfolder in samfolders:
 
 		rcs = ",".join(rc)
 		clusters[rcs] = clusters.get(rcs, 0) + 1
+		if not rcs in folders:
+			folders[rcs] = []
+		folders[rcs].append(os.path.basename(samfolder))
 
 print("Cluster analysis...")
 print("{} clusters over {} SAM files".format(len(clusters), samcount))
@@ -44,3 +48,7 @@ print("complex > 5 resources")
 for rcs in clusters:
 	if rcs.count(",") > 5:
 		print("[{:3d}] ({:2d}x) {}".format(clusters[rcs], rcs.count(","), rcs))
+print("significant folders")
+for rcs in folders:
+	if len(folders[rcs]) > 5:
+		print(rcs, folders[rcs])
