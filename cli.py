@@ -8,7 +8,7 @@ def _acquire_sar():
     _output_path = 'data/autostats'
     Path(_output_path).mkdir(parents=True, exist_ok=True)
     os.chdir(_output_path)
-    subprocess.run(f"python {old_wd}/autocontents.py", shell=True)
+    subprocess.run(f"python {old_wd}/autocontents.py --custom", shell=True)
     os.chdir(old_wd)
 
 def _insights():
@@ -59,4 +59,4 @@ elif args.task == 'all':
     _acquire_sar()
     _insights()
     _insights_plot()
-    _github_contents()
+    #_github_contents()
