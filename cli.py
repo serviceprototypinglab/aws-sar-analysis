@@ -23,6 +23,18 @@ def _insights_plot():
     subprocess.run(f"python {old_wd}/insights-plot.py", shell=True)
     os.chdir(old_wd)
 
+def _codechecker():
+    old_wd = os.getcwd()
+    os.chdir('data/')
+    subprocess.run(f"python {old_wd}/codechecker.py", shell=True)
+    os.chdir(old_wd)
+
+def _samfinder():
+    old_wd = os.getcwd()
+    os.chdir('data/')
+    subprocess.run(f"python {old_wd}/samfinder/samfinder.py --copy", shell=True)
+    os.chdir(old_wd)
+
 def _github_contents():
     old_wd = os.getcwd()
     _output_path = 'data/github-contents'
@@ -35,7 +47,7 @@ cli = argparse.ArgumentParser(description='AWS SAR Analysis')
 
 cli.add_argument(
     "task",
-    choices=['acquire-sar', 'insights', 'insights-plot', 'github-contents', 'all'],
+    choices=['acquire-sar', 'insights', 'insights-plot', 'github-contents', 'codechecker', 'samfinder', 'all'],
     default='all',
     nargs='?',
     help='Running without parameters will execute all tasks.'
@@ -54,9 +66,15 @@ elif args.task == 'insights-plot':
 elif args.task == 'github-contents':
     # generate insights from SAR data
     _github_contents()
+elif args.task == 'codechecker':
+    _codechecker()
+elif args.task == 'samfinder':
+    _samfinder()
 elif args.task == 'all':
     # generate insights from SAR data
     _acquire_sar()
     _insights()
     _insights_plot()
     #_github_contents()
+    _codechecker()
+    _samfinder()
