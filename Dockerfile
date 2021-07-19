@@ -12,4 +12,4 @@ COPY ./ ./
 
 RUN pip install --no-cache-dir -r requirements_container.txt
 
-CMD ["python", "cli.py"]
+CMD ["python", "cli.py", "all", "--timestamp", "--light"]
