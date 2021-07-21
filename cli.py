@@ -34,7 +34,8 @@ def _samfinder():
 
 def _github_contents():
     _output_path = f'{output_dir}/github-contents'
-    _run_cmd_datadir("github-contents.py ../autostats/autocontents-*.csv", _output_path)
+    _full_output_path = os.path.abspath(output_dir)
+    _run_cmd_datadir(f"github-contents.py '{_full_output_path}/autostats/autocontents-*.csv'", _output_path)
 
 def _remove_large_results():
     _rm_dirs = ['_codechecker', '_codefolders', '_codestamp']
@@ -44,6 +45,21 @@ def _remove_large_results():
         if dirpath.exists() and dirpath.is_dir():
             # remove files recursively
             shutil.rmtree(dirpath)
+
+def _move_to_timestamped():
+    timestamp_dir = f"{output_dir}/{datetime.today().strftime('%Y-%m-%d')}"
+    Path(timestamp_dir).mkdir(parents=True, exist_ok=True)
+    _to_move = [
+        'codecheckerfolders.json',
+        'codecheckernamedfolders.json',
+        'codecheckerrepos.json',
+        'plots',
+        '_sams'
+    ]
+    for path in _to_move:
+        dirpath = Path(f'{output_dir}/{path}')
+        if dirpath.exists():
+            shutil.move(f'{output_dir}/{path}', f'{timestamp_dir}/{path}')
 
 cli = argparse.ArgumentParser(description='AWS SAR Analysis')
 
@@ -87,17 +103,7 @@ elif args.task == 'all':
 
 if args.timestamp:
     timestamp = True
-    timestamp_dir = f"{output_dir}/{datetime.today().strftime('%Y-%m-%d')}"
-    Path(timestamp_dir).mkdir(parents=True, exist_ok=True)
-    _to_move = [
-        'codecheckerfolders.json',
-        'codecheckernamedfolders.json',
-        'codecheckerrepos.json',
-        'plots',
-        '_sams'
-    ]
-    for path in _to_move:
-        shutil.move(f'{output_dir}/{path}', f'{timestamp_dir}/{path}')
+    _move_to_timestamped()
 
 if args.light:
     light = True
